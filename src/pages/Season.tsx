@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { Link, useParams, useSearchParams } from 'react-router-dom'
 import { AnimatePresence, motion } from 'framer-motion'
 import {
-  ArrowLeft, Calendar, Check, ChevronRight, Clock, ExternalLink, Eye, Gavel, Gem, Link2, Lock, MapPin,
+  ArrowLeft, Calendar, Check, CheckCheck, ChevronRight, Clock, ExternalLink, Eye, Gavel, Gem, Link2, Lock, MapPin,
   MessageSquare, Shield, Skull, Sparkles, Star, Users,
 } from 'lucide-react'
 import { formatDate, googleThreadUrl, isReunion, redditSearchUrl, shortName, useSeason } from '../lib/data'
@@ -39,12 +39,14 @@ function SeasonView({ season }: { season: SeasonData }) {
   const [tab, setTab] = useState<Tab>('overview')
   const [showSeasonRating, setShowSeasonRating] = useState(false)
   const [selected, setSelected] = useState<Castaway | null>(null)
+  const [confirmAll, setConfirmAll] = useState(false)
 
   const horizon = horizonOf(watched)
   const requested = params.get('ep') !== null ? Number(params.get('ep')) : horizon
   const viewEp = Math.min(Math.max(0, requested), horizon)
   const state = useMemo(() => computeStateAt(season, viewEp), [season, viewEp])
   const mainEps = season.episodes.filter(e => !isReunion(e.label))
+  const lastMainEp = Math.max(...mainEps.map(e => e.n))
   const viewEpisode = season.episodes.find(e => e.n === viewEp)
   const seasonAvg = useMemo(() => {
     const s = season.episodes.map(e => ratings[epKey(n, e.n)]?.score).filter((x): x is number => !!x)
@@ -94,6 +96,17 @@ function SeasonView({ season }: { season: SeasonData }) {
             <button onClick={() => setShowSeasonRating(v => !v)} className="inline-flex items-center gap-1.5 rounded-xl border border-white/15 bg-white/5 px-3 py-1.5 text-sm hover:bg-white/10">
               <Star size={14} /> {seasonRating ? <>Staffel: <ScoreBadge score={seasonRating.score} size="sm" /></> : 'Staffel bewerten'}
             </button>
+            {horizon < lastMainEp && (confirmAll ? (
+              <span className="inline-flex flex-wrap items-center gap-2 rounded-xl border border-ember/40 bg-ember/10 px-3 py-1.5 text-sm">
+                Alle Folgen inkl. Finale als gesehen markieren? Zeigt Sieger &amp; Endstand.
+                <button onClick={() => { markUpTo(lastMainEp); setConfirmAll(false) }} className="rounded-lg bg-ember px-2 py-0.5 font-bold text-stone-950">Ja</button>
+                <button onClick={() => setConfirmAll(false)} className="rounded-lg bg-white/10 px-2 py-0.5">Abbrechen</button>
+              </span>
+            ) : (
+              <button onClick={() => setConfirmAll(true)} className="inline-flex items-center gap-1.5 rounded-xl border border-white/15 bg-white/5 px-3 py-1.5 text-sm hover:bg-white/10">
+                <CheckCheck size={14} /> Ganze Staffel gesehen
+              </button>
+            ))}
           </div>
           <AnimatePresence>
             {showSeasonRating && (
