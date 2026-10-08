@@ -1,0 +1,38 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Bebas Neue", "Inter", sans-serif;
+  --color-night: #0c0a09;
+  --color-ember: #f97316;
+  --color-flame: #fbbf24;
+  --color-jungle: #10b981;
+}
+
+html {
+  color-scheme: dark;
+}
+
+body {
+  @apply bg-night text-stone-100 font-sans antialiased;
+  background-image:
+    radial-gradient(1200px 600px at 10% -10%, rgb(249 115 22 / 0.14), transparent 60%),
+    radial-gradient(900px 500px at 100% 0%, rgb(16 185 129 / 0.10), transparent 60%);
+  background-attachment: fixed;
+  min-height: 100vh;
+}
+
+.glass {
+  @apply bg-white/[0.04] border border-white/10 backdrop-blur-xl rounded-2xl;
+}
+
+.chip {
+  @apply inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium;
+}
+
+.text-gradient {
+  @apply bg-gradient-to-r from-ember via-flame to-amber-200 bg-clip-text text-transparent;
+}
+
+.scrollbar-thin::-webkit-scrollbar { height: 8px; width: 8px; }
+.scrollbar-thin::-webkit-scrollbar-thumb { background: rgb(255 255 255 / 0.12); border-radius: 999px; }
