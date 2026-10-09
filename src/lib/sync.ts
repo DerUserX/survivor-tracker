@@ -84,7 +84,8 @@ export function merge(local: UserData, remote: UserData): UserData {
   for (const key of keys) {
     const lt = local.stamps[key] ?? 0
     const rt = remote.stamps[key] ?? 0
-    const src = rt > lt ? remote : local
+    // newer side wins; on a tie (e.g. both unstamped data from before the sync existed) a value beats "nothing"
+    const src = rt > lt || (rt === lt && getEntry(local, key) === undefined) ? remote : local
     setEntry(out, key, structuredClone(getEntry(src, key)))
     if (lt || rt) out.stamps[key] = Math.max(lt, rt)
   }
