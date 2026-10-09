@@ -112,6 +112,9 @@ for (const f of FILES) D[f] = await load(f)
 
 const details = new Map(D.castaway_details.map(d => [d.castaway_id, d]))
 const seasonNames = new Map(D.season_summary.map(s => [s.season, s.season_name]))
+// r/survivor discussion links per episode, collected by scripts/fetch-reddit-threads.mjs
+let redditThreads = {}
+try { redditThreads = JSON.parse(await fs.readFile(path.join(ROOT, 'scripts', 'reddit-threads.json'), 'utf8')) } catch { /* optional */ }
 const imageOf = await resolveImages(D.castaways)
 
 const bySeason = name => groupBy(D[name], 'season')
@@ -125,6 +128,7 @@ for (const ss of D.season_summary.sort((a, b) => a.season - b.season)) {
   const get = f => S[f].get(n) ?? []
   const episodes = get('episodes').sort((a, b) => a.episode - b.episode).map(e => ({
     n: e.episode, title: e.episode_title, label: e.episode_label, date: e.episode_date, length: e.episode_length ?? null,
+    threads: redditThreads[n]?.[e.episode] ?? [],
   }))
   if (!episodes.length) continue
 

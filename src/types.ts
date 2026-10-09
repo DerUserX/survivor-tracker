@@ -4,6 +4,8 @@ export interface EpisodeInfo {
   label: string
   date: string
   length?: number | null
+  /** r/survivor discussion threads (live thread first) */
+  threads?: { label: string; url: string }[]
 }
 
 export interface SeasonIndexEntry {

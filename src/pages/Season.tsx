@@ -5,7 +5,7 @@ import {
   ArrowLeft, Calendar, Check, CheckCheck, ChevronRight, Clock, ExternalLink, Eye, Gavel, Gem, Link2, Lock, MapPin,
   MessageSquare, Shield, Skull, Sparkles, Star, Users,
 } from 'lucide-react'
-import { formatDate, googleThreadUrl, isReunion, redditSearchUrl, shortName, useSeason } from '../lib/data'
+import { formatDate, isReunion, shortName, useSeason } from '../lib/data'
 import { computeStateAt } from '../lib/spoilerState'
 import { epKey, horizonOf, useUserStore } from '../store/useUserStore'
 import { RatingInput, ScoreBadge } from '../components/RatingInput'
@@ -289,6 +289,7 @@ function EpisodePanel({ season, ep }: { season: SeasonData; ep: EpisodeInfo }) {
   const threadLink = useUserStore(s => s.threadLinks[k])
   const setThreadLink = useUserStore(s => s.setThreadLink)
   const [editLink, setEditLink] = useState(false)
+  const threads = ep.threads ?? []
   const [linkDraft, setLinkDraft] = useState(threadLink ?? '')
 
   useEffect(() => { setLinkDraft(threadLink ?? ''); setEditLink(false) }, [threadLink, k])
@@ -309,8 +310,21 @@ function EpisodePanel({ season, ep }: { season: SeasonData; ep: EpisodeInfo }) {
           <RatingInput value={rating} onSave={(s, t) => rate(season.season, ep.n, s, t)} onClear={() => clearRating(season.season, ep.n)} />
         </div>
         <div>
-          <div className="mb-2 flex items-center gap-2 text-sm font-semibold"><MessageSquare size={15} className="text-[#ff4500]" /> Reddit Live-Thread</div>
-          {threadLink && !editLink ? (
+          <div className="mb-2 flex items-center gap-2 text-sm font-semibold"><MessageSquare size={15} className="text-[#ff4500]" /> Reddit-Diskussion</div>
+          {threads.length > 0 ? (
+            <div className="space-y-2">
+              <a href={threads[0].url} target="_blank" rel="noreferrer" className="flex items-center gap-2 rounded-xl bg-[#ff4500]/15 px-3 py-2 text-sm font-semibold text-[#ff8c5a] hover:bg-[#ff4500]/25">
+                <ExternalLink size={14} /> {threads[0].label}
+              </a>
+              {threads.length > 1 && (
+                <div className="flex flex-wrap gap-1.5">
+                  {threads.slice(1).map(t => (
+                    <a key={t.url} href={t.url} target="_blank" rel="noreferrer" className="chip bg-white/5 text-stone-300 hover:bg-white/10 hover:text-white">{t.label}</a>
+                  ))}
+                </div>
+              )}
+            </div>
+          ) : threadLink && !editLink ? (
             <div className="flex items-center gap-2">
               <a href={threadLink} target="_blank" rel="noreferrer" className="flex flex-1 items-center gap-2 truncate rounded-xl bg-[#ff4500]/15 px-3 py-2 text-sm font-semibold text-[#ff8c5a] hover:bg-[#ff4500]/25">
                 <ExternalLink size={14} /> Thread öffnen
@@ -319,23 +333,15 @@ function EpisodePanel({ season, ep }: { season: SeasonData; ep: EpisodeInfo }) {
             </div>
           ) : (
             <div className="space-y-2">
-              <div className="grid grid-cols-2 gap-2">
-                <a href={redditSearchUrl(season.name, ep.n)} target="_blank" rel="noreferrer" className="flex items-center justify-center gap-1.5 rounded-xl bg-[#ff4500]/15 px-3 py-2 text-xs font-semibold text-[#ff8c5a] hover:bg-[#ff4500]/25">
-                  <ExternalLink size={13} /> Reddit-Suche
-                </a>
-                <a href={googleThreadUrl(season.season, season.name, ep.n)} target="_blank" rel="noreferrer" className="flex items-center justify-center gap-1.5 rounded-xl bg-white/5 px-3 py-2 text-xs font-semibold text-stone-300 hover:bg-white/10">
-                  <ExternalLink size={13} /> Google
-                </a>
-              </div>
+              <p className="text-xs text-stone-500">Für diese Folge ist kein Thread im r/survivor-Archiv verlinkt.</p>
               <div className="flex gap-2">
                 <div className="relative flex-1">
                   <Link2 size={14} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-stone-500" />
-                  <input value={linkDraft} onChange={e => setLinkDraft(e.target.value)} placeholder="Gefundenen Thread-Link speichern"
+                  <input value={linkDraft} onChange={e => setLinkDraft(e.target.value)} placeholder="Eigenen Thread-Link speichern"
                     className="w-full rounded-xl border border-white/10 bg-black/30 py-2 pl-8 pr-2 text-xs outline-none focus:border-ember/60" />
                 </div>
                 <button onClick={() => setThreadLink(season.season, ep.n, linkDraft)} className="rounded-xl bg-white/10 px-3 text-xs font-semibold hover:bg-white/20">OK</button>
               </div>
-              {season.premiered < '2009' && <p className="text-[11px] text-stone-500">Hinweis: Zu frühen Staffeln gibt es oft keine Live-Threads (r/survivor startete ca. 2008).</p>}
             </div>
           )}
         </div>

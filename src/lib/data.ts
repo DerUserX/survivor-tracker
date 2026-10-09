@@ -42,16 +42,6 @@ export function formatDate(d: string | null | undefined) {
   return new Date(d + 'T12:00:00').toLocaleDateString('de-DE', { day: '2-digit', month: 'short', year: 'numeric' })
 }
 
-export function redditSearchUrl(seasonName: string, ep: number) {
-  const q = `${shortName(seasonName)} episode ${ep} live`
-  return `https://www.reddit.com/r/survivor/search/?q=${encodeURIComponent(q)}&type=posts&sort=relevance`
-}
-
-export function googleThreadUrl(seasonNum: number, seasonName: string, ep: number) {
-  const q = `site:reddit.com/r/survivor "Survivor" "${shortName(seasonName)}" OR "Season ${seasonNum}" episode ${ep} "live" thread`
-  return `https://www.google.com/search?q=${encodeURIComponent(q)}`
-}
-
 /** Readable text color for a tribe background color. */
 export function contrastText(hex: string) {
   const h = hex.replace('#', '')
